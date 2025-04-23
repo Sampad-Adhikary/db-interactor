@@ -4,7 +4,7 @@ from typing import List
 
 from app.db import get_db
 from app.schemas.user import UserCreate, UserRead
-from app.crud.user import create_user, get_users
+from app.crud.user import create_user, get_users, get_user_by_id
 
 router = APIRouter()
 
@@ -41,3 +41,21 @@ def read_users(db: Session = Depends(get_db)):
     """
 
     return get_users(db)
+
+@router.post("/read/{user_id}", response_model=UserRead)
+def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve a user by ID.
+
+    This endpoint retrieves a user record from the database based on the provided
+    user ID and returns it as a UserRead schema object.
+
+    Args:
+        user_id (int): The ID of the user to retrieve.
+        db (Session): The database session used to execute the query.
+
+    Returns:
+        UserRead: The UserRead object representing the user with the specified ID.
+    """
+
+    return get_user_by_id(db, user_id) 
