@@ -33,3 +33,8 @@ class UserRead(UserCreate):
 
     class Config:
         model_config = {'from_attributes': True}
+
+class UserUpdate(BaseModel):
+    id: int
+    name: str
+    email: EmailStr

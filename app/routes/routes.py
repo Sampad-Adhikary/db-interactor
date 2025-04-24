@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.db import get_db
-from app.schemas.user import UserCreate, UserRead
-from app.crud.user import create_user, get_users, get_user_by_id
+from app.schemas.user import UserCreate, UserRead, UserUpdate
+from app.crud.user import create_user, get_users, get_user_by_id, update_user_db
 
 router = APIRouter()
 
@@ -58,4 +58,20 @@ def read_user_by_id(user_id: int, db: Session = Depends(get_db)):
         UserRead: The UserRead object representing the user with the specified ID.
     """
 
-    return get_user_by_id(db, user_id) 
+    return get_user_by_id(db, user_id)
+
+@router.post("/update",response_model=UserRead)
+def update_user(user: UserUpdate, db: Session = Depends(get_db)):
+    """
+    Update an existing user.
+
+    This endpoint updates an existing user record in the database
+    with the data provided in the UserCreate schema object.
+
+    Args:
+        user (UserCreate): The user data to update an existing user record with.
+
+    Returns:
+        UserRead: The updated User object with the generated ID.
+    """
+    return update_user_db(db, user)

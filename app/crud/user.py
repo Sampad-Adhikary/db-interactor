@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.schemas.user import UserCreate, UserRead
+from app.schemas.user import UserCreate, UserRead, UserUpdate
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from fastapi import HTTPException, status
 import json
@@ -103,4 +103,31 @@ def get_user_by_id(db: Session, user_id: int):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"An unexpected error occurred: {str(e)}",
+        )
+
+def update_user_db(db: Session, user: UserUpdate):
+    try:
+        db_user = db.query(User).filter(User.id == user.id).first()
+        if db_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+        db_user.name = user.name
+        db_user.email = user.email
+        db.commit()
+        db.refresh(db_user)
+        return JSONResponse(
+            content={"message": "User updated successfully", "user": user.model_dump()},
+            status_code=status.HTTP_200_OK,
+        )
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error: {str(e)}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error: {str(e)}",
         )
